@@ -9,7 +9,7 @@ class Url {
         $this->conn = $db;
     }
 
-    // 🔹 Crear nueva URL
+    
     public function create($data) {
         $sql = "INSERT INTO {$this->table}
                 (original_url, short_code, expires_at, max_uses, creator_ip, uses)
@@ -26,7 +26,7 @@ class Url {
         ]);
     }
 
-    // 🔹 Buscar por código corto
+    
     public function findByCode($shortCode) {
         $sql = "SELECT * FROM {$this->table} WHERE short_code = :short_code LIMIT 1";
         $stmt = $this->conn->prepare($sql);
@@ -35,7 +35,7 @@ class Url {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    // 🔹 Incrementar contador de usos
+   
     public function incrementUses($shortCode) {
         $sql = "UPDATE {$this->table}
                 SET uses = uses + 1

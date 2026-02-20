@@ -1,6 +1,7 @@
 <?php
 
 class Visit {
+
     private $conn;
     private $table = "visits";
 
@@ -8,12 +9,18 @@ class Visit {
         $this->conn = $db;
     }
 
-    public function register($data) {
-        $query = "INSERT INTO " . $this->table . "
-                  (url_id, ip_address, user_agent)
-                  VALUES (:url_id, :ip_address, :user_agent)";
+    public function create($data) {
 
-        $stmt = $this->conn->prepare($query);
-        return $stmt->execute($data);
+        $sql = "INSERT INTO {$this->table}
+                (short_code, ip_address, user_agent, visited_at)
+                VALUES (:short_code, :ip_address, :user_agent, NOW())";
+
+        $stmt = $this->conn->prepare($sql);
+
+        return $stmt->execute([
+            ":short_code" => $data['short_code'],
+            ":ip_address" => $data['ip_address'],
+            ":user_agent" => $data['user_agent']
+        ]);
     }
 }

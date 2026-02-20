@@ -24,3 +24,45 @@ class UrlController {
     }
 
 }
+// 🔹 CREAR URL CORTA
+public function store() {
+
+    // Obtener JSON enviado
+    $data = json_decode(file_get_contents("php://input"), true);
+
+    if (!isset($data['original_url'])) {
+        http_response_code(400);
+        echo json_encode(["error" => "original_url es requerido"]);
+        return;
+    }
+
+    // Validar URL
+    if (!filter_var($data['original_url'], FILTER_VALIDATE_URL)) {
+        http_response_code(400);
+        echo json_encode(["error" => "URL inválida"]);
+        return;
+    }
+
+    // Generar código único
+    do {
+        $shortCode = $this->generateShortCode();
+        $exists = $this->urlModel->findByCode($shortCode);
+    } while ($exists);
+
+    $urlData = [
+        "original_url" => $data['original_url'],
+        "short_code"   => $shortCode,
+        "expires_at"   => $data['expires_at'] ?? null,
+        "max_uses"     => $data['max_uses'] ?? null,
+        "creator_ip"   => $_SERVER['REMOTE_ADDR']
+    ];
+
+    $this->urlModel->create($urlData);
+
+    http_response_code(201);
+
+    echo json_encode([
+        "short_code" => $shortCode,
+        "short_url"  => "http://localhost:8000/" . $shortCode
+    ]);
+}
